@@ -12,7 +12,6 @@ import io.gitlab.arturbosch.detekt.api.Finding
 import io.gitlab.arturbosch.detekt.api.UnstableApi
 import io.gitlab.arturbosch.detekt.idea.config.DetektConfigStorage
 import io.gitlab.arturbosch.detekt.idea.util.DirectExecuter
-import io.gitlab.arturbosch.detekt.idea.util.absolutePath
 import io.gitlab.arturbosch.detekt.idea.util.extractPaths
 import java.io.File
 import java.io.FileNotFoundException
@@ -49,14 +48,14 @@ class ConfiguredService(private val project: Project) {
         }
         rules {
             this.autoCorrect = autoCorrect
-            activateAllRules = storage.enableAllRules
+            activateAllRules = false
             maxIssuePolicy = RulesSpec.MaxIssuePolicy.AllowAny
         }
         config {
             // Do not throw an error during annotation mode as it is a common scenario
             // that the IntelliJ plugin is behind detekt core version-wise (new unknown config properties).
             shouldValidateBeforeAnalysis = false
-            useDefaultConfig = storage.buildUponDefaultConfig
+            useDefaultConfig = true
             configPaths = configPaths()
         }
         baseline {
@@ -64,9 +63,7 @@ class ConfiguredService(private val project: Project) {
         }
         extensions {
             fromPaths { pluginPaths() }
-            if (!storage.enableFormatting) {
-                disableExtension(FORMATTING_RULE_SET_ID)
-            }
+            disableExtension(FORMATTING_RULE_SET_ID)
         }
         execution {
             executorService = DirectExecuter()
@@ -103,14 +100,12 @@ class ConfiguredService(private val project: Project) {
         return null
     }
 
-
     private fun pluginPaths(): List<Path> {
         val checkJar = "/checkstyle/checkstyle.jar"
         return extractPaths(createConfigFile(checkJar, "detekt-extension-1.0-SNAPSHOT.jar") ?: "", project)
     }
 
-    private fun baseline(): Path? = storage.baselinePath.trim().takeIf { it.isNotEmpty() }
-        ?.let { Paths.get(absolutePath(project, storage.baselinePath)) }
+    private fun baseline(): Path? = null
 
     fun execute(file: PsiFile, autoCorrect: Boolean): List<Finding> {
         val pathToAnalyze = file.virtualFile?.canonicalPath ?: return emptyList()

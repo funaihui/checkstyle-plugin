@@ -6,6 +6,7 @@ import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
 import io.gitlab.arturbosch.detekt.api.Finding
+import io.gitlab.arturbosch.detekt.api.SeverityLevel
 import io.gitlab.arturbosch.detekt.api.TextLocation
 import io.gitlab.arturbosch.detekt.idea.config.DetektConfigStorage
 import io.gitlab.arturbosch.detekt.idea.util.isDetektEnabled
@@ -35,7 +36,6 @@ class DetektAnnotator : ExternalAnnotator<PsiFile, List<Finding>>() {
         annotationResult: List<Finding>,
         holder: AnnotationHolder
     ) {
-        val configuration = DetektConfigStorage.instance(file.project)
         for (finding in annotationResult) {
             val textRange = finding.charPosition.toTextRange()
             val message = buildString {
@@ -44,7 +44,7 @@ class DetektAnnotator : ExternalAnnotator<PsiFile, List<Finding>>() {
                 append(": ")
                 append(finding.messageOrDescription())
             }
-            val severity = if (configuration.treatAsError) HighlightSeverity.ERROR else HighlightSeverity.WARNING
+            val severity = if (finding.severity==SeverityLevel.ERROR) HighlightSeverity.ERROR else HighlightSeverity.WARNING
             holder.newAnnotation(severity, message)
                 .range(textRange)
                 .create()

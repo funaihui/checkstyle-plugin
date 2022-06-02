@@ -17,37 +17,18 @@ class DetektConfigStorage : PersistentStateComponent<DetektConfigStorage> {
     var enableDetekt: Boolean = false
 
     @Tag
-    var enableFormatting: Boolean = false
-
-    @Tag
-    var buildUponDefaultConfig: Boolean = false
-
-    @Tag
-    var enableAllRules: Boolean = false
+    var buildUponDefaultConfig: Boolean = true
 
     @Tag
     var treatAsError: Boolean = false
 
-    @Tag
-    var configPaths: String = ""
-
-    @Tag
-    var baselinePath: String = ""
-
-    @Tag
-    var pluginPaths: String = ""
 
     override fun getState(): DetektConfigStorage = this
 
     override fun loadState(state: DetektConfigStorage) {
         this.enableDetekt = state.enableDetekt
-        this.enableFormatting = state.enableFormatting
         this.buildUponDefaultConfig = state.buildUponDefaultConfig
-        this.enableAllRules = state.enableAllRules
-        this.configPaths = state.configPaths
-        this.baselinePath = state.baselinePath
         this.treatAsError = state.treatAsError
-        this.pluginPaths = state.pluginPaths
     }
 
     companion object {
